@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from "./Components/Header.jsx";
 import Homepage from "./Pages/Homepage.jsx";
-import CreatePost from './Pages/Createpost.jsx';
+import CreatePost from "./Pages/Createpost.jsx";
+import PostDetail from "./Pages/PostDetail.jsx";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Homepage />} />
+          <Route path="/post/:id" element={<PostDetail />} />
           <Route path="/create-post" element={<CreatePost />} />
         </Routes>
       </div>

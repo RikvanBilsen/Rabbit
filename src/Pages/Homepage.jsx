@@ -1,12 +1,13 @@
 import useSWR from 'swr';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 function MainContent() {
   const { data: posts, error } = useSWR('https://localhost:44319/api/post', fetcher);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedPostId, setExpandedPostId] = useState(null); // Track which post is expanded.
+  const navigate = useNavigate();
 
   if (error) {
     console.log(error);
@@ -15,7 +16,6 @@ function MainContent() {
 
   if (!posts) return <div className="text-center my-5">Loading...</div>;
 
-  // Filter posts based on search query
   const filteredPosts = posts.filter((post) => {
     return (
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -23,13 +23,10 @@ function MainContent() {
     );
   });
 
-  const toggleExpand = (postId) => {
-    setExpandedPostId(expandedPostId === postId ? null : postId); // Toggle the expanded state.
-  };
+  console.log(posts);
 
   return (
     <div className="container my-4">
-      {/* Search Bar */}
       <div className="d-flex justify-content-center mb-4">
         <input
           type="text"
@@ -40,12 +37,14 @@ function MainContent() {
         />
       </div>
 
-      {/* Post Cards */}
       {filteredPosts.map((post) => (
         <div
-          key={post.id}
+          key={post.postId}  
           className="card mb-3"
-          onClick={() => toggleExpand(post.id)} // Make the block clickable.
+          onClick={() => {
+            console.log('Navigating to post with ID:', post.postId);
+            navigate(`/post/${post.postId}`);  {/* Make sure to use postId here */}
+          }}
           style={{ cursor: 'pointer' }}
         >
           <div className="card-body">
@@ -53,13 +52,6 @@ function MainContent() {
             <p className="card-text text-muted">
               Published on: {new Date(post.publishDate).toLocaleDateString()}
             </p>
-            {expandedPostId === post.id && ( // Show additional details if expanded.
-              <div className="mt-3">
-                <p>{post.body}</p>
-                <p className="text-muted">Last edited: {new Date(post.lastEdited).toLocaleDateString()}</p>
-                <span className="badge bg-primary">Tag: {post.tag}</span>
-              </div>
-            )}
           </div>
         </div>
       ))}
