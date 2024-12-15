@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import CreatePost from './pages/CreatePost';
 import PostDetails from './pages/PostDetails';
 import AccountPage from "./Pages/AccountPage.jsx";
+import LoginPage from "./Pages/LoginPage.jsx";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/create-post" element={<CreatePost />} />
                 <Route path="/post/:postId" element={<PostDetails />} />
                 <Route path="/create-account" element={<AccountPage />} />
+                <Route path="/login" element={<LoginPage />} />
               </Routes>
             </main>
           </div>

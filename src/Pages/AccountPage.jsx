@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const RegisterAccount = () => {
     const [username, setUsername] = useState('');
@@ -28,7 +29,7 @@ const RegisterAccount = () => {
             });
 
             if (response.ok) {
-                console.log("Account created successfully.");
+                console.log('Account created successfully.');
                 navigate('/');
             } else {
                 const errorData = await response.json();
@@ -94,9 +95,18 @@ const RegisterAccount = () => {
                         </button>
                     </div>
                 </form>
+
+                {/* Login Redirect */}
+                <p className="mt-4 text-center text-gray-600">
+                    Already have an account?{' '}
+                    <Link to="/login" className="text-orange-500 hover:underline">
+                        Login here
+                    </Link>
+                </p>
             </div>
         </div>
     );
 };
 
 export default RegisterAccount;
+
