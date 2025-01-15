@@ -1,16 +1,17 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const LoginAccount = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const [loggedInUser, setLoggedInUser] = useState(null); // To store logged-in user info
+    const [loggedInUser, setLoggedInUser] = useState(null); 
     const navigate = useNavigate();
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('loggedInUser');
+        const storedUser = Cookies.get('loggedInUser');
         if (storedUser) {
             setLoggedInUser(JSON.parse(storedUser));
         }
@@ -32,35 +33,41 @@ const LoginAccount = () => {
                 },
                 body: JSON.stringify(loginDetails),
             });
-
+        
             if (response.ok) {
-                const userData = await response.json();
-                setLoggedInUser(userData);
-                localStorage.setItem('loggedInUser', JSON.stringify(userData));
+                const data = await response.json();
+        
+                const loggedInUser = {
+                    email: data.email,
+                    userName: data.userName,
+                    userId: data.userId, 
+                };    
+                setLoggedInUser(loggedInUser);
+                
+                Cookies.set('loggedInUser', JSON.stringify(loggedInUser), { expires: 7 });
+        
                 navigate('/');
             } else {
                 const errorData = await response.json();
                 setErrorMessage(errorData.message || 'Invalid credentials');
             }
         } catch (error) {
-            setErrorMessage(error.message);
-        }
+            setErrorMessage('An error occurred. Please try again.');
+        }        
     };
 
-    // Logout function
     const handleLogout = () => {
         setLoggedInUser(null);
-        localStorage.removeItem('loggedInUser');
+        Cookies.remove('loggedInUser'); // Remove the entire loggedInUser object from the cookie
     };
 
     return (
         <div className="max-w-2xl mx-auto py-8 px-4">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 {loggedInUser ? (
-                    // Display this when the user is logged in
                     <div className="text-center">
                         <h1 className="text-xl font-semibold mb-4">
-                            You are logged in as <span className="text-orange-500">{loggedInUser.email}</span>
+                            You are logged in as <span className="text-orange-500">{loggedInUser.userName}</span>
                         </h1>
                         <button
                             onClick={handleLogout}
@@ -71,7 +78,6 @@ const LoginAccount = () => {
                     </div>
                 ) : (
 
-                    // login form -> user not logged in
                     <>
                         <h1 className="text-xl font-semibold mb-6">Login to Your Account</h1>
                         <form onSubmit={handleSubmit}>
