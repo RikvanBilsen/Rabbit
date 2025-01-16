@@ -58,7 +58,7 @@ const LoginAccount = () => {
 
     const handleLogout = () => {
         setLoggedInUser(null);
-        Cookies.remove('loggedInUser'); // Remove the entire loggedInUser object from the cookie
+        Cookies.remove('loggedInUser'); 
     };
 
     return (

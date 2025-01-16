@@ -1,21 +1,36 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Image, Link, Bold, Italic, List } from 'lucide-react';
+import Cookies from 'js-cookie';
 
 const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [tag, setTag] = useState('');
   const navigate = useNavigate();
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    const storedUser = Cookies.get('loggedInUser');
+    if (storedUser) {
+      setLoggedInUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!loggedInUser) {
+      setErrorMessage('You must be logged in to create a post');
+      return;
+    }
+
     const newPost = {
       title,
       body,
-      publishDate: new Date(),
-      lastEdited: new Date()
+      userId: loggedInUser.userId,
+      tag: tag || null, 
     };
 
     try {
@@ -30,69 +45,68 @@ const CreatePost = () => {
       if (response.ok) {
         navigate('/');
       } else {
-        throw new Error('Failed to create post');
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || 'Failed to create post');
       }
     } catch (error) {
       console.error('Error creating post:', error);
+      setErrorMessage('An error occurred while creating the post.');
     }
   };
 
   return (
-      <div className="max-w-2xl mx-auto py-8 px-4">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h1 className="text-xl font-semibold mb-6">Create a post</h1>
+    <div className="max-w-2xl mx-auto py-8 px-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h1 className="text-xl font-semibold mb-6">Create a Post</h1>
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-6">
-              <input
-                  type="text"
-                  placeholder="Title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  required
-              />
-            </div>
+        {errorMessage && (
+          <div className="mb-4 text-red-500 text-sm">{errorMessage}</div>
+        )}
 
-            <div className="mb-2">
-              <div className="flex items-center space-x-2 mb-2 border-b border-gray-200 pb-2">
-                <button type="button" className="p-1 hover:bg-gray-100 rounded">
-                  <Bold className="w-5 h-5 text-gray-500" />
-                </button>
-                <button type="button" className="p-1 hover:bg-gray-100 rounded">
-                  <Italic className="w-5 h-5 text-gray-500" />
-                </button>
-                <button type="button" className="p-1 hover:bg-gray-100 rounded">
-                  <Link className="w-5 h-5 text-gray-500" />
-                </button>
-                <button type="button" className="p-1 hover:bg-gray-100 rounded">
-                  <List className="w-5 h-5 text-gray-500" />
-                </button>
-                <button type="button" className="p-1 hover:bg-gray-100 rounded">
-                  <Image className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+            />
+          </div>
 
-              <textarea
-                  placeholder="Text (optional)"
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  rows={8}
-              />
-            </div>
+          <div className="mb-6">
+            <textarea
+              placeholder="Body"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              rows={8}
+              required
+            />
+          </div>
 
-            <div className="flex justify-end">
-              <button
-                  type="submit"
-                  className="px-6 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
-              >
-                Post
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Tag (optional)"
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
+            >
+              Post
+            </button>
+          </div>
+        </form>
       </div>
+    </div>
   );
 };
 

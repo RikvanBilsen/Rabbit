@@ -46,7 +46,7 @@ const PostDetails = () => {
 
       if (response.ok) {
         setNewComment('');
-        mutateComments();  // Re-fetch the comments after submitting
+        mutateComments();  
       } else if (response.status === 401) {
         navigate('/login');
       }
